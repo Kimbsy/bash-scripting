@@ -1,0 +1,45 @@
+#!/bin/bash
+
+#******************************************************************************#
+# Calculate a percentage.
+#******************************************************************************#
+
+# Parse options
+verbosity=2
+while getopts ":v" opt; do
+    case $opt in
+        v)
+            ((verbosity=verbosity+1))
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            ;;
+    esac
+done
+
+# Shift the options off the input args.
+shift $((OPTIND-1))
+
+# Check that there are 2 args.
+ARG_COUNT=2
+if [ $# -ne $ARG_COUNT ]; then
+    echo "Usage: `basename $0` num_progress num_total"
+    exit
+fi
+
+# Ensure args are numbers.
+for arg in "$@"; do
+    if ! [[ $arg =~ ^[+-]?[0-9]+\.?[0-9]*$ ]]; then 
+        echo "$arg is not a number"
+        exit
+    fi
+done
+
+# Calculate percentage.
+percentage=$(awk "BEGIN { pc=100*$1/$2; i=int(pc); print (pc-i<0.5)?i:i+1 }")
+
+if [[ verbosity -gt 2 ]]; then
+    echo "$1 out of $2: $percentage%"
+else
+    echo $percentage
+fi
