@@ -5,13 +5,16 @@
 #******************************************************************************#
 
 #******************************************************************************#
-# Check if line does NOT already exist in file.
+# Save the state of the terminal and restor it afterwards.
 #******************************************************************************#
-SEARCH_TERM="Something to search for."
-FILE_NAME=~/.bashrc
-if ! grep -q $SEARCH_TERM $FILE_NAME; then
-    echo "do stuff"
-fi
+tput smcup # Save the state and clear the terminal.
+clear
+
+# Do stuff
+read -n1 -p "Press any key to continue..." var
+
+tput rmcup # Restore the state.
+echo "You pressed \"$var\""
 
 #******************************************************************************#
 # Check the number of arguments passed to a function.
@@ -20,6 +23,15 @@ ARG_COUNT=1
 if [ $# -ne $ARG_COUNT ]; then
     echo "Usage: $FUNCNAME arg"     # for function name
     echo "Usage: `basename $0` arg" # for script name
+fi
+
+#******************************************************************************#
+# Check if line does NOT already exist in file.
+#******************************************************************************#
+SEARCH_TERM="Something to search for."
+FILE_NAME=~/.bashrc
+if ! grep -q $SEARCH_TERM $FILE_NAME; then
+    echo "do stuff"
 fi
 
 #******************************************************************************#
