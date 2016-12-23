@@ -5,7 +5,7 @@
 #******************************************************************************#
 
 #******************************************************************************#
-# Save the state of the terminal and restor it afterwards.
+# Save the state of the terminal and restore it afterwards.
 #******************************************************************************#
 tput smcup # Save the state and clear the terminal.
 clear

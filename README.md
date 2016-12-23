@@ -1,2 +1,3 @@
 # bash-scripting
-Bash scripting things
+
+Repo for bash scripting snippets, useful functions and tools
