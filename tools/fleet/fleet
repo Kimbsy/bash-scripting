@@ -1,0 +1,145 @@
+#!/bin/bash
+#
+# Get random and/or unique names from the list of Eve Online ships.
+
+#******************************************************************************#
+# Print the command usage for this tool.
+#******************************************************************************#
+usage() {
+    echo "Usage: `basename 0` [-v[v...]] [-l] [-s <starting_letter>] [-e \"<quoted_exlude_list>\"]"
+}
+
+#******************************************************************************#
+# Verbose printing function.
+#
+# Usage:
+#     verbose "string to print" [1|2|3|...]
+#
+# Will print the supplied string if the specified number of -v options have been
+#   passed into the script.
+#******************************************************************************#
+verbose() {
+    num_vs=$2
+    ((num_vs=num_vs+1))
+    if [[ $verbosity -gt $num_vs ]]; then
+        echo "$1"
+    fi
+}
+
+#******************************************************************************#
+# Get sublist which all start with specified letter.
+#******************************************************************************#
+exclude_by_starting_letter() {
+    sublist=""
+
+    for name in $names; do
+        first_letter="${name:0:1}"
+        if [ "${first_letter,,}" == "${1,,}" ]; then
+            sublist="$sublist $name"
+        fi
+    done
+
+    echo $sublist
+}
+
+#******************************************************************************#
+# Get sublist where none are in specified list.
+#******************************************************************************#
+exclude_by_list() {
+    sublist=""
+
+    declare -a exclude_arr=("${!1}")
+
+    for name in $names; do
+        unique=1
+        for excluded in "${exclude_arr[@]}"; do
+            if [ "${name,,}" == "${excluded,,}" ]; then
+                unique=0
+                break
+            fi
+        done
+
+        if [ "$unique" -eq 1 ]; then
+            sublist="$sublist $name"
+        fi
+    done
+
+    echo $sublist
+}
+
+#******************************************************************************#
+# Get a random element from an array.
+#******************************************************************************#
+get_random() {
+    declare -a arr=("${!1}")
+
+    length="${#arr[@]}"
+    index="$[ $RANDOM % $length ]"
+    choice="${arr[$index]}"
+
+    echo $choice
+}
+
+
+
+
+# Parse comand options.
+valid=1
+verbosity=2
+starting_letter=""
+lowercase=0
+exclude_list=""
+while getopts "s:lve:" opt; do
+    case $opt in
+        s)
+            starting_letter="${OPTARG:0:1}"
+            ;;
+        l)
+            lowercase=1
+            ;;
+        v)
+            ((verbosity=verbosity+1))
+            ;;
+        e)
+            exclude_list=($OPTARG)
+            ;;
+        \?)
+            valid=0
+            break
+            ;;
+    esac
+done
+
+# Check for invalid options.
+if [ "$valid" -ne "1" ]; then
+    exit
+fi
+
+# Get name data from file.
+data_file="eve_online_ships"
+names=""
+
+while read -r line; do
+    names="$names $line"
+done < "$data_file"
+
+# Cut down by starting letter if required.
+if [ "$starting_letter" != "" ]; then
+    names=$(exclude_by_starting_letter $starting_letter)
+fi
+
+# Cut down by exclusion list if required.
+if [ "$exclude_list" != "" ]; then
+    names=$(exclude_by_list exclude_list[@])
+fi
+
+# Get random name.
+names_arr=($names)
+output=$(get_random names_arr[@])
+
+# Print in lowercase if requirded.
+if [ "$lowercase" -eq "1" ]; then
+    echo ${output,,}
+else
+    echo $output
+fi
