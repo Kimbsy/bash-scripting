@@ -101,8 +101,7 @@ echo $@
 #         v)
 #             ((verbosity=verbosity+1))
 #******************************************************************************#
-verbose()
-{
+verbose() {
     num_vs=$2
     ((num_vs=num_vs+1))
     if [[ verbosity -gt num_vs ]]; then
