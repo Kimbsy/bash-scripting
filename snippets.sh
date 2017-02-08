@@ -163,3 +163,28 @@ echo $STRING | sudo tee -a $FILE
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 printf "I ${RED}love${NC} Stack Overflow\n"
+
+#******************************************************************************#
+# Uppercase first letter.
+#******************************************************************************#
+ucfirst() {
+    for word in "$@"; do
+        first=${word:0:1}
+        rest=${word:1}
+        echo "${first^^}$rest"
+    done
+}
+
+# Basic usage
+ucfirst "uppercase"
+
+# Takes any number of args
+ucfirst "one two three" "four" "five"
+
+# Can even take arrays
+some_array=("foo" "bar" "baz")
+ucfirst ${some_array[@]}
+
+# Interpolation
+name="dave"
+echo "Hello my name is $(ucfirst $name)"
