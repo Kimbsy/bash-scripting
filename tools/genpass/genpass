@@ -1,0 +1,99 @@
+#!/bin/bash
+#
+# Generate random passphrases.
+
+words="/usr/share/dict/words"
+
+#******************************************************************************#
+# Strip apostrophes and trailing characters from inputs.
+#******************************************************************************#
+strip_apostrophes() {
+    for item in "$@"; do
+        echo "${item%%\'*}"
+    done
+}
+
+#******************************************************************************#
+# Make inputs lowercase.
+#******************************************************************************#
+lowercase() {
+    for item in "$@"; do
+        echo "${item,,}"
+    done
+}
+
+#******************************************************************************#
+# Make inputs uppercase.
+#******************************************************************************#
+uppercase() {
+    for item in "$@"; do
+        echo "${item^^}"
+    done
+}
+
+#******************************************************************************#
+# Clean inputs.
+#******************************************************************************#
+clean() {
+    lowercase $(strip_apostrophes $@)
+}
+
+#******************************************************************************#
+# Get a random cleaned word from the linux words file.
+#******************************************************************************#
+get_rand_word() {
+    line_count=$(cat $words | wc -l)
+    rand_line=$((1 + RANDOM % $line_count))
+    rand_word=$(sed "${rand_line}q;d" "$words")
+    
+    clean $rand_word
+}
+
+#******************************************************************************#
+# Randomly make inputs uppercase or lowercase.
+#******************************************************************************#
+rand_uc() {
+    for item in "$@"; do
+        choice=$((RANDOM % 2))
+
+        if [ $choice -eq 0 ]; then
+            uppercase "$item"
+        else
+            lowercase "$item"
+        fi
+    done
+}
+
+#******************************************************************************#
+# Concatenate inputs.
+#******************************************************************************#
+concat() {
+    output="$1"
+    shift
+    for item in "$@"; do
+        output="$output-$item"
+    done
+
+    echo "$output"
+}
+
+#******************************************************************************#
+# Create passphrase.
+#******************************************************************************#
+create_passphrase() {
+    rand_words=()
+
+    for i in {1..4}; do
+        rand_words+=($(rand_uc $(get_rand_word)))
+        # rand_uc $(get_rand_word)
+    done
+
+    concat ${rand_words[@]}
+}
+
+
+
+create_passphrase
+create_passphrase
+create_passphrase
+create_passphrase

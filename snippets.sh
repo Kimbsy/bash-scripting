@@ -40,8 +40,8 @@ echo "You pressed \"$var\""
 #******************************************************************************#
 # Check the number of arguments passed to a function.
 #******************************************************************************#
-ARG_COUNT=1
-if [ $# -ne $ARG_COUNT ]; then
+arg_count=1
+if [ $# -ne "$arg_count" ]; then
     echo "Usage: $FUNCNAME arg"     # for function name
     echo "Usage: `basename $0` arg" # for script name
 fi
@@ -49,9 +49,9 @@ fi
 #******************************************************************************#
 # Check if line does NOT already exist in file.
 #******************************************************************************#
-SEARCH_TERM="Something to search for."
-FILE_NAME=~/.bashrc
-if ! grep -q $SEARCH_TERM $FILE_NAME; then
+search_term="Something to search for."
+file_name="~/.bashrc"
+if ! grep -q "$search_term" "$file_name"; then
     echo "do stuff"
 fi
 
@@ -61,7 +61,7 @@ fi
 while getopts ":a:bc" opt; do
 #              ^ ^ second colon indicates that option -a takes an argument
 #              ^ first colon suppresses getopts errors
-    case $opt in
+    case "$opt" in
         a)
             echo "Option -a was triggered, parameter: $OPTARG" >&2
             ;;
@@ -104,7 +104,7 @@ echo $@
 verbose() {
     num_vs=$2
     ((num_vs=num_vs+1))
-    if [[ verbosity -gt num_vs ]]; then
+    if [[ $verbosity -gt num_vs ]]; then
         echo $1
     fi
 }
@@ -135,17 +135,17 @@ done
 #******************************************************************************#
 # Check for a valid IPv4 address.
 #******************************************************************************#
-IP="192.168.0.1"
-if [[ $IP =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-    echo "$IP is a valid IPv4 address."
+ip="192.168.0.1"
+if [[ "$ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+    echo "$ip is a valid IPv4 address."
 fi
 
 #******************************************************************************#
 # Echo string into a root owned file.
 #******************************************************************************#
-STRING="Something, maybe about hosts"
-FILE=~/tmp/someFile
-echo $STRING | sudo tee -a $FILE
+string="Something, maybe about hosts"
+destination="~/tmp/someFile"
+echo "$string" | sudo tee -a "$destination"
 
 #******************************************************************************#
 # Color output.
