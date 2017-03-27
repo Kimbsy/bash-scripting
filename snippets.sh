@@ -1,8 +1,6 @@
 #!/bin/bash
-
-#******************************************************************************#
-# Snippets for Bash scripting.
-#******************************************************************************#
+#
+# Usewful snippets for Bash scripting.
 
 #******************************************************************************#
 # Iterate over array values.
@@ -28,13 +26,15 @@ IFS=';' read -r -a array_name <<< "$some_string"
 #******************************************************************************#
 # Save the state of the terminal and restore it afterwards.
 #******************************************************************************#
-tput smcup # Save the state and clear the terminal.
+# Save the state and clear the terminal.
+tput smcup
 clear
 
 # Do stuff
 read -n1 -p "Press any key to continue..." var
 
-tput rmcup # Restore the state.
+# Restore the state.
+tput rmcup
 echo "You pressed \"$var\""
 
 #******************************************************************************#
@@ -175,16 +175,21 @@ ucfirst() {
     done
 }
 
-# Basic usage
+# Basic usage.
 ucfirst "uppercase"
 
-# Takes any number of args
+# Takes any number of args.
 ucfirst "one two three" "four" "five"
 
-# Can even take arrays
+# Can even take arrays.
 some_array=("foo" "bar" "baz")
 ucfirst ${some_array[@]}
 
-# Interpolation
+# Interpolation.
 name="dave"
 echo "Hello my name is $(ucfirst $name)"
+
+#******************************************************************************#
+# Send desktop notification.
+#******************************************************************************#
+notify-send "Title" "description"
