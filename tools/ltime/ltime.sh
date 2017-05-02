@@ -28,10 +28,36 @@ time_loop() {
     done
 }
 
+#******************************************************************************#
+# Print the correct usage for the command.
+#******************************************************************************#
+usage() {
+    echo "Usage: `basename $0` [-n <seconds>] <command>"
+}
+
+# Parse any options.
+while getopts ":n:" opt; do
+    case "$opt" in
+        n)
+            # Specify the number of seconds between outputs.
+            n="$OPTARG"
+            ;;
+        :)
+            echo "Option -$OPTARG requires an argument." >&2
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            ;;
+    esac
+done
+
+# Shift the options off the input args.
+shift $((OPTIND-1))
+
 # Ensure we have at least one argument.
 arg_count=1
 if [ $# -lt "$arg_count" ]; then
-    echo "Usage: `basename $0` [command]"
+    usage
 fi
 
 # Start the timer loop and store its process id.
