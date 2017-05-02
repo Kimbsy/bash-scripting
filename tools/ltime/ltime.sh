@@ -5,7 +5,7 @@
 BLUE='\033[1;34m'
 NC='\033[0m' # No Color
 
-# Nuber of seconds between outputs.
+# Default time in seconds between outputs.
 n=5
 
 #******************************************************************************#
@@ -47,6 +47,7 @@ while getopts ":n:" opt; do
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
+            usage
             ;;
     esac
 done
