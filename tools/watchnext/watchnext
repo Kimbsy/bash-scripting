@@ -1,0 +1,34 @@
+#!/bin/bash
+#
+# Watch the next episode of something.
+
+export DISPLAY=:0
+
+usage() {
+    echo "watchnext <SERIES_NAME>"
+}
+
+# Check args.
+arg_count=1
+if [ $# -ne "$arg_count" ]; then
+    usage
+    exit
+fi
+
+series_dir="/home/kimbsy/Videos/watchable/$1"
+watched_dir="$series_dir/watched"
+new_dir="$series_dir/new"
+
+# Get next episode.
+next=$(ls $new_dir | sort | head -n 1)
+
+if [ ! -z "$next" ]; then
+    echo "playing next episode"
+    # Move episode.
+    mv "$new_dir/$next" "$watched_dir/$next"
+
+    # Play episode.
+    vlc -f "$watched_dir/$next"
+else
+    espeak "no more $1 episodes available"
+fi

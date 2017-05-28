@@ -1,0 +1,1 @@
+sudo ln -s $(pwd)/watchnext /usr/local/bin/watchnext
