@@ -23,12 +23,14 @@ new_dir="$series_dir/new"
 next=$(ls $new_dir | sort | head -n 1)
 
 if [ ! -z "$next" ]; then
-    echo "playing next episode"
     # Move episode.
     mv "$new_dir/$next" "$watched_dir/$next"
 
     # Play episode.
+    espeak "playing next $1 episode"
+    espeak "please wait"
     vlc -f "$watched_dir/$next"
 else
     espeak "no more $1 episodes available"
 fi
+
