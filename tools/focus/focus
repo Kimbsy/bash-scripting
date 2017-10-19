@@ -10,9 +10,6 @@
 raw=`xdotool search -name terminator getwindowfocus`
 printf -v parsed 0x%x $raw
 
-# Shift the options off the input args.
-shift $((OPTIND-1))
-
 # Ensure we have at least one argument.
 arg_count=1
 if [ $# -lt "$arg_count" ]; then
