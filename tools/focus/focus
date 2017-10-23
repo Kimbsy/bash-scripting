@@ -6,6 +6,10 @@
 # Usage:
 #   focus <command>
 
+usage() {
+    echo "Usage: focus <command>"
+}
+
 # Find the window id of the Terminator window.
 raw=`xdotool search -name terminator getwindowfocus`
 printf -v parsed 0x%x $raw
