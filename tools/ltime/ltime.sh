@@ -66,7 +66,7 @@ time_loop &
 loop_id=$!
 
 # Execute the command.
-"$@"
+time "$@"
 
 # Stop the timer loop.
 kill $loop_id
