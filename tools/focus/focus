@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# Bring the teminal window to the front of the workspace after executing a 
+#   command.
+# 
+# Usage:
+#   focus <command>
+
+usage() {
+    echo "Usage: focus <command>"
+}
+
+# Find the window id of the Terminator window.
+raw=`xdotool search -name terminator getwindowfocus`
+printf -v parsed 0x%x $raw
+
+# Ensure we have at least one argument.
+arg_count=1
+if [ $# -lt "$arg_count" ]; then
+    usage
+    exit 1
+fi
+
+# Execute the command.
+"$@"
+
+# Activate the window, bringing it to the front.
+xdotool windowactivate $parsed

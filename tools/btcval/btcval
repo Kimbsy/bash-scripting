@@ -1,0 +1,6 @@
+#!/bin/bash
+
+usd_value=$(curl 'https://api.coindesk.com/site/chartandheaderdata?currency=BTC,ETH' -H 'origin: https://www.coindesk.com' -H 'accept-encoding: gzip, deflate, br' -H 'accept-language: en-GB,en;q=0.9,en-US;q=0.8,fr-FR;q=0.7,fr;q=0.6' -H 'user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36' -H 'accept: application/json, text/javascript, */*; q=0.01' -H 'referer: https://www.coindesk.com/price/' -H 'authority: api.coindesk.com' --compressed -s | jq .BTC.header_data.bpi.USD.rate_float)
+gbp_value=$(curl 'https://api.coindesk.com/site/chartandheaderdata?currency=BTC,ETH' -H 'origin: https://www.coindesk.com' -H 'accept-encoding: gzip, deflate, br' -H 'accept-language: en-GB,en;q=0.9,en-US;q=0.8,fr-FR;q=0.7,fr;q=0.6' -H 'user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36' -H 'accept: application/json, text/javascript, */*; q=0.01' -H 'referer: https://www.coindesk.com/price/' -H 'authority: api.coindesk.com' --compressed -s | jq .BTC.header_data.bpi.GBP.rate_float)
+
+notify-send "BTC Value" "\$${usd_value}\n£${gbp_value}"
