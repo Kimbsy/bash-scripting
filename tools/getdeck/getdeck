@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Tool for extracting decks from web pages and saving them in a forge readable format.
+#
+# @TODO: make it work fot MTGGoldfish and TappedOut.
 
 #******************************************************************************#
 # Find all distinct decklists in the article.
@@ -16,9 +20,30 @@ get_decks() {
     echo $1 | grep -Po "<h1>[^<>]+</h1>\s<h3>.*?crystal-catalog-helper-list.*?(?=<p>)"
 }
 
+#******************************************************************************#
+# Replace HTML encoded apostrophes with ASCII ones.
+#******************************************************************************#
 clean_apostrophes() {
     text=$1
-    echo ${text//&#8217;/\'}
+    echo "${text//&#8217;/\'}"
+}
+
+#******************************************************************************#
+# Replace forward slashes with hyphens to avoid file name issues.
+#******************************************************************************#
+clean_slashes() {
+    text=$1
+    echo "${text//\//-}"
+}
+
+#******************************************************************************#
+# Remove parentheses to stop forge deleting the deck.
+#******************************************************************************#
+clean_parens() {
+    text=$1
+    no_open="${text//\(/}"
+    no_close="${no_open//\)/}"
+    echo $no_close
 }
 
 #******************************************************************************#
@@ -44,7 +69,10 @@ find_cards() {
 #******************************************************************************#
 get_deck_name() {
     name=$(echo $1 | grep -Po "<h1>\K[^<>]+(?=</h1> <h3>)")
-    echo $(clean_apostrophes "$name")
+    clean_apostrophes=$(clean_apostrophes "$name")
+    clean_slashes=$(clean_slashes "$clean_apostrophes")
+    clean_parens=$(clean_parens "$clean_slashes")
+    echo $clean_parens
 }
 
 #******************************************************************************#
@@ -92,7 +120,7 @@ processed_decks=()
 while read -r deck; do
     deck_name=$(get_deck_name "$deck")
     echo "Processing deck: $deck_name"
-    process_deck "$deck" > ~/.forge/decks/constructed/"${deck_name//\//-}".dck
+    process_deck "$deck" > ~/.forge/decks/constructed/"$deck_name".dck
     processed_decks+=("$deck_name")
 done <<< "$decks"
 
