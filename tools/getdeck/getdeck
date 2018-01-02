@@ -16,6 +16,11 @@ get_decks() {
     echo $1 | grep -Po "<h1>[^<>]+</h1>\s<h3>.*?crystal-catalog-helper-list.*?(?=<p>)"
 }
 
+clean_apostrophes() {
+    text=$1
+    echo ${text//&#8217;/\'}
+}
+
 #******************************************************************************#
 # Find and print all cards.
 # 
@@ -25,7 +30,7 @@ get_decks() {
 find_cards() {
     echo $1 | grep -Po "<span class=\"qty\">\d.*?</a>" | while IFS= read -r line ; do
         # Clean up apostrophes.
-        line=${line//&#8217;/\'}
+        line=$(clean_apostrophes "$line")
 
         # Print the quantity and name of the card
         qty=$(echo $line | grep -Po "qty\">\K\d+(?=</span>)")
@@ -38,7 +43,8 @@ find_cards() {
 # Determine the name of a deck.
 #******************************************************************************#
 get_deck_name() {
-    echo $1 | grep -Po "<h1>\K[^<>]+(?=</h1> <h3>)"
+    name=$(echo $1 | grep -Po "<h1>\K[^<>]+(?=</h1> <h3>)")
+    echo $(clean_apostrophes "$name")
 }
 
 #******************************************************************************#
