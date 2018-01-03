@@ -10,6 +10,14 @@ get_decks() {
 }
 
 #******************************************************************************#
+# Remove apostrophes to stop forge deleting the deck.
+#******************************************************************************#
+remove_apostrophes() {
+    text=$1
+    echo "${text//\'/}"
+}
+
+#******************************************************************************#
 # Find and print all cards.
 # 
 # Card elements are of the form:
@@ -32,7 +40,8 @@ find_cards() {
 #******************************************************************************#
 get_deck_name() {
     name=$(echo $1 | grep -Po "deck-view-title\"> \K.*?(?= <span)")
-    echo $name
+    remove_apostrophes=$(remove_apostrophes "$name")
+    echo $remove_apostrophes
 }
 
 #******************************************************************************#

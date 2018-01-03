@@ -19,11 +19,19 @@ get_decks() {
 }
 
 #******************************************************************************#
-# Replace HTML encoded apostrophes with ASCII ones.
+# Replace encoded apostrophes with ASCII ones.
 #******************************************************************************#
-clean_apostrophes() {
+decode_apostrophes() {
     text=$1
     echo "${text//&#8217;/\'}"
+}
+
+#******************************************************************************#
+# Remove apostrophes to stop forge deleting the deck.
+#******************************************************************************#
+remove_apostrophes() {
+    text=$1
+    echo "${text//\'/}"
 }
 
 #******************************************************************************#
@@ -53,7 +61,7 @@ clean_parens() {
 find_cards() {
     echo $1 | grep -Po "<span class=\"qty\">\d.*?</a>" | while IFS= read -r line ; do
         # Clean up apostrophes.
-        line=$(clean_apostrophes "$line")
+        line=$(decode_apostrophes "$line")
 
         # Print the quantity and name of the card
         qty=$(echo $line | grep -Po "qty\">\K\d+(?=</span>)")
@@ -67,8 +75,9 @@ find_cards() {
 #******************************************************************************#
 get_deck_name() {
     name=$(echo $1 | grep -Po "<h1>\K[^<>]+(?=</h1> <h3>)")
-    clean_apostrophes=$(clean_apostrophes "$name")
-    clean_slashes=$(clean_slashes "$clean_apostrophes")
+    decode_apostrophes=$(decode_apostrophes "$name")
+    remove_apostrophes=$(remove_apostrophes "$decode_apostrophes")
+    clean_slashes=$(clean_slashes "$remove_apostrophes")
     clean_parens=$(clean_parens "$clean_slashes")
     echo $clean_parens
 }

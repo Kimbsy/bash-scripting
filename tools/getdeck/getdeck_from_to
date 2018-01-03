@@ -9,24 +9,56 @@
 #   
 #******************************************************************************#
 get_decks() {
-    echo foo
+    echo $1 | grep -Po "<div class=\"container-fluid\">\K.*?(?=<h3>Description</h3>)"
+}
+
+#******************************************************************************#
+# Replace encoded apostrophes with ASCII ones.
+#******************************************************************************#
+decode_apostrophes() {
+    text=$1
+    echo "${text//&#39;/\'}"
+}
+
+#******************************************************************************#
+# Remove apostrophes to stop forge deleting the deck.
+#******************************************************************************#
+remove_apostrophes() {
+    text=$1
+    echo "${text//\'/}"
 }
 
 #******************************************************************************#
 # Find and print all cards.
 # 
 # Card elements are of the form:
-#   
+#   <li class="member" ... >
+#     <a ... class="qty board" ... >3x</a>
+#     <span ... >
+#       <a ... class="card-link card-hover" ... >Cryptic Command</a>
+#     </span>
+#   </li>
 #******************************************************************************#
 find_cards() {
-    echo foo
+    echo $1 | grep -Po "<li class=\"member\".*?</li>" | while IFS= read -r line ; do
+        # Clean up apostrophes.
+        line=$(decode_apostrophes "$line")
+
+        # Print the quantity and name of the card
+        qty=$(echo $line | grep -Po "<a.*?class=\"qty board\".*?>\K\d+(?=x</a>)")
+        card_name=$(echo $line | grep -Po "<a.*?class=\"card-link card-hover\".*?>\K.*?(?=</a>)")
+        echo "$qty $card_name"
+    done
 }
 
 #******************************************************************************#
 # Determine the name of a deck.
 #******************************************************************************#
 get_deck_name() {
-    echo foo
+    name=$(echo $1 | grep -Po "<h2> \K.*?(?= </h2>)")
+    decode_apostrophes=$(decode_apostrophes "$name")
+    remove_apostrophes=$(remove_apostrophes "$decode_apostrophes")
+    echo "$remove_apostrophes"
 }
 
 #******************************************************************************#
@@ -39,8 +71,8 @@ process_deck() {
     echo "Deck Type=constructed"
 
     # Find the main and sideboard sections.
-    main=$(echo $1 | grep -Po "")
-    side=$(echo $1 | grep -Po "")
+    main=$(echo $1 | grep -Po ".*<h3 style=\"\">Sideboard")
+    side=$(echo $1 | grep -Po "<h3 style=\"\">Sideboard.*")
 
     # Find cards in each section.
     echo "[Main]"
@@ -51,7 +83,7 @@ process_deck() {
 
 # Get the article html.
 url=$1
-html=$(curl "$url" -s)
+html=$(curl "$url" -s | tr '\n' ' ')
 
 # Find the decks.
 decks=$(get_decks "$html")
