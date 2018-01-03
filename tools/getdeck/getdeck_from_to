@@ -1,0 +1,75 @@
+#!/bin/bash
+#
+# Tool for extracting decks from TappedOut deck pages.
+
+#******************************************************************************#
+# Find all distinct decklists in the article.
+# 
+# Decklists are of the form:
+#   
+#******************************************************************************#
+get_decks() {
+    echo foo
+}
+
+#******************************************************************************#
+# Find and print all cards.
+# 
+# Card elements are of the form:
+#   
+#******************************************************************************#
+find_cards() {
+    echo foo
+}
+
+#******************************************************************************#
+# Determine the name of a deck.
+#******************************************************************************#
+get_deck_name() {
+    echo foo
+}
+
+#******************************************************************************#
+# Parse a deck and print in forge ready format.
+#******************************************************************************#
+process_deck() {
+    deck_name=$(get_deck_name "$1")
+    echo "[metadata]"
+    echo "Name=$deck_name"
+    echo "Deck Type=constructed"
+
+    # Find the main and sideboard sections.
+    main=$(echo $1 | grep -Po "")
+    side=$(echo $1 | grep -Po "")
+
+    # Find cards in each section.
+    echo "[Main]"
+    find_cards "$main"
+    echo "[Sideboard]"
+    find_cards "$side"
+}
+
+# Get the article html.
+url=$1
+html=$(curl "$url" -s)
+
+# Find the decks.
+decks=$(get_decks "$html")
+if [[ -z $decks ]]; then
+    echo "No decks found"
+    notify-send "No decks found"
+    exit 1
+fi
+
+# Process each deck and output to file.
+processed_decks=()
+while read -r deck; do
+    deck_name=$(get_deck_name "$deck")
+    echo "Processing deck: $deck_name"
+    process_deck "$deck" > ~/.forge/decks/constructed/"$deck_name".dck
+    processed_decks+=("$deck_name")
+done <<< "$decks"
+
+# Notify user of new decks.
+printf -v notification_text '%s\n' "${processed_decks[@]}"
+notify-send "Processed decks:" "$notification_text"

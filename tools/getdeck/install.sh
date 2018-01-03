@@ -18,7 +18,11 @@ if [ ! -f "$opt_dir" ]; then
     sudo mkdir -p "$opt_dir"
 fi
 
+# Copy parsers for individual sites.
 sudo cp "$(pwd)/getdeck_from_"* "$opt_dir/"
 sudo chmod +x "$opt_dir/"*
+
+# Copy phantomJS script for allowing decklists to load.
+sudo cp "$(pwd)/getLoadedSource.js" "$opt_dir/"
 
 echo "Installation complete."
