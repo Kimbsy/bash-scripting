@@ -1,7 +1,24 @@
 #!/bin/bash
 
-# @TODO: should check if these need doing first
-# @TODO: should make uninstall script too
+name=getdeck
 
-sudo apt install -y xclip
-sudo ln -s $(pwd)/getdeck /usr/local/bin/getdeck
+echo "Installing $name tool..."
+
+sudo apt-get -qq install -y xclip phantomjs
+
+binary="/usr/local/bin/$name"
+if [ -f  "$binary" ]; then
+    echo "Removing previous version..."
+    sudo rm "$binary"
+fi
+sudo ln -s "$(pwd)/$name" "$binary"
+
+opt_dir="/opt/kimbsy/bash/$name"
+if [ ! -f "$opt_dir" ]; then
+    sudo mkdir -p "$opt_dir"
+fi
+
+sudo cp "$(pwd)/getdeck_from_"* "$opt_dir/"
+sudo chmod +x "$opt_dir/"*
+
+echo "Installation complete."

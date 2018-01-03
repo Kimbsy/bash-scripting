@@ -1,100 +1,11 @@
 #!/bin/bash
 #
 # Tool for extracting decks from web pages and saving them in a forge readable format.
-#
-# @TODO: make it work fot MTGGoldfish and TappedOut.
-
-#******************************************************************************#
-# Find all distinct decklists in the article.
 # 
-# Decklists are of the form:
-#   <h1>B/W Midrange</h1>
-#   ...
-#   <div class="crystal-catalog-helper crystal-catalog-helper-list">
-#   ...
-#   crystal-catalog-helper-subtitle">Sideboard
-#   ...
-#   <p>
-#******************************************************************************#
-get_decks() {
-    echo $1 | grep -Po "<h1>[^<>]+</h1>\s<h3>.*?crystal-catalog-helper-list.*?(?=<p>)"
-}
-
-#******************************************************************************#
-# Replace HTML encoded apostrophes with ASCII ones.
-#******************************************************************************#
-clean_apostrophes() {
-    text=$1
-    echo "${text//&#8217;/\'}"
-}
-
-#******************************************************************************#
-# Replace forward slashes with hyphens to avoid file name issues.
-#******************************************************************************#
-clean_slashes() {
-    text=$1
-    echo "${text//\//-}"
-}
-
-#******************************************************************************#
-# Remove parentheses to stop forge deleting the deck.
-#******************************************************************************#
-clean_parens() {
-    text=$1
-    no_open="${text//\(/}"
-    no_close="${no_open//\)/}"
-    echo $no_close
-}
-
-#******************************************************************************#
-# Find and print all cards.
-# 
-# Card elements are of the form:
-#   <span class="qty">2</span> x Omniscience</a>
-#******************************************************************************#
-find_cards() {
-    echo $1 | grep -Po "<span class=\"qty\">\d.*?</a>" | while IFS= read -r line ; do
-        # Clean up apostrophes.
-        line=$(clean_apostrophes "$line")
-
-        # Print the quantity and name of the card
-        qty=$(echo $line | grep -Po "qty\">\K\d+(?=</span>)")
-        card_name=$(echo $line | grep -Po "x \K.*(?=<)")
-        echo "$qty ${card_name%% //*}"
-    done
-}
-
-#******************************************************************************#
-# Determine the name of a deck.
-#******************************************************************************#
-get_deck_name() {
-    name=$(echo $1 | grep -Po "<h1>\K[^<>]+(?=</h1> <h3>)")
-    clean_apostrophes=$(clean_apostrophes "$name")
-    clean_slashes=$(clean_slashes "$clean_apostrophes")
-    clean_parens=$(clean_parens "$clean_slashes")
-    echo $clean_parens
-}
-
-#******************************************************************************#
-# Parse a deck and print in forge ready format.
-#******************************************************************************#
-process_deck() {
-    # get_deck_name "$1"
-    deck_name=$(get_deck_name "$1")
-    echo "[metadata]"
-    echo "Name=$deck_name"
-    echo "Deck Type=constructed"
-
-    # Find the main and sideboard sections.
-    main=$(echo $1 | grep -Po ".*(?=crystal-catalog-helper-subtitle\">Sideboard)")
-    side=$(echo $1 | grep -Po "crystal-catalog-helper-subtitle\">Sideboard.*")
-
-    # Find cards in each section.
-    echo "[Main]"
-    find_cards "$main"
-    echo "[Sideboard]"
-    find_cards "$side"
-}
+# Works with:
+#   channelfireball.com
+#   mtggoldfish.com
+#   tappedout.net
 
 # Get url from clipboard.
 url=$(xclip -selection clipboard -o)
@@ -104,26 +15,16 @@ if [[ -z $url ]]; then
     exit 1
 fi
 
-# Get the article html.
-html=$(curl "$url" -s)
-
-# Find the decks.
-decks=$(get_decks "$html")
-if [[ -z $decks ]]; then
-    echo "No decks found"
-    notify-send "No decks found"
+if [[ "$url" =~ .*channelfireball.* ]]; then
+    echo "Identified ChannelFireball URL."
+    /opt/kimbsy/bash/getdeck/./getdeck_from_cfb "$url"
+elif [[ "$url" =~ .*mtggoldfish.* ]]; then
+    echo "Identified MTGGoldfish URL."
+    /opt/kimbsy/bash/getdeck/./getdeck_from_mtggf "$url"
+elif [[ "$url" =~ .*tappedout.* ]]; then
+    echo "Identified TappedOut URL."
+    /opt/kimbsy/bash/getdeck/./getdeck_from_to "$url"
+else
+    echo "URL not recognised."
     exit 1
 fi
-
-# Process each deck and output to file.
-processed_decks=()
-while read -r deck; do
-    deck_name=$(get_deck_name "$deck")
-    echo "Processing deck: $deck_name"
-    process_deck "$deck" > ~/.forge/decks/constructed/"$deck_name".dck
-    processed_decks+=("$deck_name")
-done <<< "$decks"
-
-# Notify user of new decks.
-printf -v notification_text '%s\n' "${processed_decks[@]}"
-notify-send "Processed decks:" "$notification_text"
