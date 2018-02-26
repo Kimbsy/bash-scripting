@@ -6,24 +6,7 @@
 # Print the command usage for this tool.
 #******************************************************************************#
 usage() {
-    echo "Usage: `basename 0` [-v[v...]] [-l] [-s <starting_letter>] [-e \"<quoted_exlude_list>\"]"
-}
-
-#******************************************************************************#
-# Verbose printing function.
-#
-# Usage:
-#     verbose "string to print" [1|2|3|...]
-#
-# Will print the supplied string if the specified number of -v options have been
-#   passed into the script.
-#******************************************************************************#
-verbose() {
-    num_vs=$2
-    ((num_vs=num_vs+1))
-    if [[ $verbosity -gt $num_vs ]]; then
-        echo "$1"
-    fi
+    echo "Usage: `basename 0` [-l] [-s <starting_letter>] [-e \"<quoted_exlude_list>\"]"
 }
 
 #******************************************************************************#
@@ -116,7 +99,7 @@ if [ "$valid" -ne "1" ]; then
 fi
 
 # Get name data from file.
-data_file="eve_online_ships"
+data_file="/opt/$(whoami)/bash/fleet/eve_online_ships"
 names=""
 
 while read -r line; do
