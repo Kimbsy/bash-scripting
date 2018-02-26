@@ -63,12 +63,8 @@ get_random() {
     echo $choice
 }
 
-
-
-
 # Parse comand options.
 valid=1
-verbosity=2
 starting_letter=""
 lowercase=0
 exclude_list=""
@@ -79,9 +75,6 @@ while getopts "s:lve:" opt; do
             ;;
         l)
             lowercase=1
-            ;;
-        v)
-            ((verbosity=verbosity+1))
             ;;
         e)
             exclude_list=($OPTARG)
