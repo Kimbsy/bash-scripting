@@ -1,6 +1,6 @@
 #!/bin/bash
 
-name=focus
+name=intermit
 
 binary="/usr/local/bin/$name"
 if [ ! -f  "$binary" ]; then
