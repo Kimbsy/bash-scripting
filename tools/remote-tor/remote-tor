@@ -3,6 +3,11 @@
 . ~/.aws/dispatch.config
 
 magurl=$(xclip -selection clipboard -o)
+if [[ ! "$magurl" =~ magnet.* ]]; then
+  notify-send "unrecognised magnet link format"
+  exit
+fi
+
 displayname=$(echo "$magurl" | grep -oP "dn=\K.*?\d+" | cut -c1-20)
 
 target=$(zenity --entry --title="Remote torrent" --text="Downloading torrent link: ${displayname} ... \n\nEnter target file name:")
@@ -15,8 +20,11 @@ body=$(jq -n \
           --arg target "$target" \
           '{
                action: "remote-torrent",
-               url: $url,
-               target: $target
+               data:
+               {
+                   url: $url,
+                   target: $target
+               }
            }')
 
 aws sqs send-message --queue-url "$DISPATCH_QUEUE_URL" --message-body "$body"  >> /tmp/output 2>&1
