@@ -27,4 +27,4 @@ body=$(jq -n \
                }
            }')
 
-aws sqs send-message --queue-url "$DISPATCH_QUEUE_URL" --message-body "$body"  >> /tmp/output 2>&1
+aws sqs send-message --queue-url "$DISPATCH_QUEUE_URL" --message-group-id 1 --message-deduplication-id "$(date +%s%N)" --message-body "$body"  >> /tmp/output 2>&1
