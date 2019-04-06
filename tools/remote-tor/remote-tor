@@ -15,11 +15,14 @@ if [ $? -ne 0 ]; then
   exit
 fi
 
+epochtime=$(date +%s%N)
+
 body=$(jq -n \
           --arg url "$magurl" \
           --arg target "$target" \
           '{
                action: "remote-torrent",
+               time: $epochtime,
                data:
                {
                    url: $url,
@@ -27,4 +30,4 @@ body=$(jq -n \
                }
            }')
 
-aws sqs send-message --queue-url "$DISPATCH_QUEUE_URL" --message-group-id 1 --message-deduplication-id "$(date +%s%N)" --message-body "$body"  >> /tmp/output 2>&1
+aws sqs send-message --queue-url "$DISPATCH_QUEUE_URL" --message-group-id 1 --message-body "$body"  >> /tmp/output 2>&1
