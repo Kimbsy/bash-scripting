@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Script to be run on startup, will check public IP against previous
+# value and alert if changed.
+#
+# Add to startup applications with command `sleep 20 && checkip` to
+# allow other startups to go first.
+
+ip_file="/opt/kimbsy/bash/checkip/ip"
+
+new_ip=$(dig +short myip.opendns.com @resolver1.opendns.com)
+old_ip=$(cat $ip_file)
+
+# if no old value, persist new value
+if [ -z "$old_ip" ]; then
+  echo $new_ip > $ip_file
+  exit 0
+else
+  # if they differ, persist new, open required file for editing, open
+  # docs in browser
+  if [ ! "$old_ip" = "$new_ip" ]; then
+    echo $new_ip > $ip_file
+
+    notify-send "Public IP has changed"\
+                "$(echo -e "\n$old_ip >> $new_ip\n\n\ New IP address added to copy buffer\n\ Opening whitelist file for editing...")"
+    echo "$new_ip" | xclip -selection c
+
+    emacs "/home/dave/Projects/infrastructure/terraform/shared/team-ips/main.tf" &
+    google-chrome "https://github.com/GowerStreet/infrastructure/blob/master/terraform/README.md#updating-your-developer-ip" &
+  else
+    echo "IP addresses match"
+  fi
+fi
